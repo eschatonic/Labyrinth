@@ -1,18 +1,27 @@
 /* variables */
 var lab = {
+	running:true,
 	seed:Math.random(),
 	graph:{
 		"-1":[],
 		"0":[],
 		"1":[]
 	},
+	graphStore:[],
 	player:{
-		location:{},
+		location:{
+			y:0,
+			x:0
+		},
+		level:1,
 		visibility:9,
 		litVisibility:7,
-		treasure:0
+		treasure:0,
+		health:5,
+		healthMax:5
 	},
-	clicked:0
+	enemies:[
+	]
 };
 
 var data = {
@@ -20,30 +29,43 @@ var data = {
 		size:24,
 		nodeTypes:{},
 		floorTypes:{}
-	}
+	},
+	enemies:{},
+	hud:{}
 }
 
 /* setup */
 function preload(){
 	initialiseData();
-}
-function setup(){
-	randomSeed(lab.seed);
-	noiseSeed(lab.seed);
-	
-	lab.player.location = {
-		y:0,
-		x:0
-	}
-	for (var y=-1;y<=1;y++){
-		for (var x=-1;x<=1;x++){
-			generateNode(y,x,"open");
-		}
-	}
-	explore();
-	
 	createCanvas(windowWidth,windowHeight);
 	background(0);
+}
+function setup(level){
+	randomSeed(lab.seed * lab.player.level);
+	noiseSeed(lab.seed * lab.player.level);
+	textAlign(LEFT);
+	imageMode(CENTER);
+	
+	if (typeof level == "undefined" || level > lab.graphStore.length){
+		lab.graph = [];
+		lab.graph[lab.player.location.y-1] = [];
+		lab.graph[lab.player.location.y] = [];
+		lab.graph[lab.player.location.y+1] = [];
+		
+		lab.enemies = [];
+		for (var y=-1;y<=1;y++){
+			for (var x=-1;x<=1;x++){
+				generateNode(y + lab.player.location.y,x + lab.player.location.x,"open");
+			}
+		}
+		if (lab.player.level > 1){
+			lab.graph[lab.player.location.y][lab.player.location.x].contains = ["stairsUp"];
+		}
+		explore();
+	} else {
+		lab.graph = lab.graphStore[level-1][0];
+		lab.enemies = lab.graphStore[level-1][1];
+	}
 }
 function initialiseData(){
 	lab.player.img = loadImage("spritePack/Sliced/creatures_24x24/oryx_16bit_fantasy_creatures_01.png")
@@ -156,6 +178,10 @@ function initialiseData(){
 
 	data.nodes.treasure = loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_261.png");
 	data.nodes.treasureOpened = loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_264.png");
+	data.nodes.potion = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_09.png");
+	
+	data.nodes.stairsDown = loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_181.png");
+	data.nodes.stairsUp = loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_180.png");
 	
 	data.nodes.nodeTypes.open = new NodeType(true,data.nodes.floorTypes.earth,false);
 	data.nodes.nodeTypes.stone0 = new NodeType(true,data.nodes.floorTypes.stone0,false);
@@ -164,6 +190,42 @@ function initialiseData(){
 	data.nodes.nodeTypes.stone3 = new NodeType(true,data.nodes.floorTypes.stone3,false);
 	data.nodes.nodeTypes.stone4 = new NodeType(true,data.nodes.floorTypes.stone4,false);
 	data.nodes.nodeTypes.wall = new NodeType(false,false,0);
+	
+	data.enemies.zombie = {
+		name:"Zombie",
+		img:loadImage("spritePack/Sliced/creatures_24x24/oryx_16bit_fantasy_creatures_307.png"),
+		health:3,
+		treasure:25,
+		move:function(){
+			if (this.location.y == lab.player.location.y && this.location.x - lab.player.location.x >= -1 && this.location.x - lab.player.location.x <= 1){
+				lab.player.health--;
+			} else if (this.location.x == lab.player.location.x && this.location.y - lab.player.location.y >= -1 && this.location.y - lab.player.location.y <= 1){
+				lab.player.health--;
+			} else {
+				var dir = Math.random();
+				if (dir < 0.25){
+					if (!isWall(this.location.y-1,this.location.x)){
+						this.location.y--;
+					}
+				} else if (dir < 0.5){
+					if (!isWall(this.location.y,this.location.x+1)){
+						this.location.x++;
+					}
+				} else if (dir < 0.75){
+					if (!isWall(this.location.y+1,this.location.x)){
+						this.location.y++;
+					}
+				} else {
+					if (!isWall(this.location.y,this.location.x-1)){
+						this.location.x--;
+					}
+				}
+			}
+		}
+	}
+	
+	data.hud.heart = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_85.png");
+	data.hud.heartEmpty = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_87.png");
 }
 
 /* constructors */
@@ -182,6 +244,17 @@ function FloorType(name,img,imgVisible){
 	this.img = img;
 	this.imgVisible = imgVisible;
 }
+function Enemy(model,y,x){
+	this.name = model.name;
+	this.img = model.img;
+	this.health = model.health;
+	this.treasure = model.treasure;
+	this.move = model.move;
+	this.location = {
+		y:y,
+		x:x
+	}
+}
 
 /* drawing */
 function draw(){
@@ -192,7 +265,12 @@ function draw(){
 	drawGraph();
 	drawVisible();
 	drawPlayer();
-	drawScore();
+	drawEnemies();
+	drawInterface();
+	
+	if (lab.player.health <= 0){
+		gameOver();
+	}
 }
 function drawGraph(){
 	for (var row in lab.graph){
@@ -214,7 +292,7 @@ function drawNode(node){
 function drawVisible(){
 	for (var i=(lab.player.litVisibility * -1) + lab.player.location.y; i<=lab.player.litVisibility + lab.player.location.y; i++){
 		for (var j=(lab.player.visibility * -1) + lab.player.location.x; j<=lab.player.visibility + lab.player.location.x; j++){
-			if (Math.floor(Math.sqrt(Math.pow(i - lab.player.location.y,2) + Math.pow(j - lab.player.location.x,2))) < lab.player.litVisibility){
+			if (isVisible(i,j)){
 				var node = lab.graph[i][j];
 				var offsetY = node.location.y - lab.player.location.y,
 					offsetX = node.location.x - lab.player.location.x;
@@ -227,22 +305,45 @@ function drawVisible(){
 				
 				if (node.contains && node.contains.length > 0){
 					for (var thing in node.contains){
-						if (node.contains[thing] == "treasure") image(data.nodes.treasure,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size)
-						if (node.contains[thing] == "treasureOpened") image(data.nodes.treasureOpened,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size)
+						if (node.contains[thing] == "treasure") image(data.nodes.treasure,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
+						if (node.contains[thing] == "treasureOpened") image(data.nodes.treasureOpened,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
+						if (node.contains[thing] == "potion") image(data.nodes.potion,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
+						if (node.contains[thing] == "stairsDown") image(data.nodes.stairsDown,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
+						if (node.contains[thing] == "stairsUp") image(data.nodes.stairsUp,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
 					}
 				}
 			}
 		}
 	}
 }
+function isVisible(nodeY,nodeX){
+	return Math.floor(Math.sqrt(Math.pow(nodeY - lab.player.location.y,2) + Math.pow(nodeX - lab.player.location.x,2))) < lab.player.litVisibility;
+}
 function drawPlayer(){
 	image(lab.player.img,windowWidth/2,windowHeight/2);
 }
-function drawScore(){
+function drawEnemies(){
+	for (var enemy in lab.enemies){
+		var e = lab.enemies[enemy];
+		if (isVisible(e.location.y,e.location.x)){
+			var offsetY = e.location.y - lab.player.location.y,
+				offsetX = e.location.x - lab.player.location.x;
+			image(lab.enemies[enemy].img,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
+		}
+	}
+}
+function drawInterface(){
 	stroke(255);
 	fill(255);
 	textSize(18);
-	text("Treasure: " + lab.player.treasure,20,38)
+	text("Treasure: " + lab.player.treasure,20,38);
+	for (var i=1;i<=lab.player.healthMax;i++){
+		if (i <= lab.player.health){
+			image(data.hud.heart,windowWidth - 28 - (data.nodes.size * (i-1)),data.nodes.size/2 + 20);
+		} else {
+			image(data.hud.heartEmpty,windowWidth - 28 - (data.nodes.size * (i-1)),data.nodes.size/2 + 20);
+		}
+	}
 }
 
 function getWallImg(y,x,set){
@@ -346,7 +447,14 @@ function mouseClicked(){
 }
 
 function move(dy,dx){
-	if (!isWall(lab.player.location.y + dy,lab.player.location.x + dx)){
+	var e = isEnemy(lab.player.location.y + dy,lab.player.location.x + dx);
+	if (e){
+		e.health--;
+		if (e.health <= 0){
+			lab.player.treasure += e.treasure * lab.player.level;
+			lab.enemies.splice(lab.enemies.indexOf(e),1);
+		}
+	} else if (!isWall(lab.player.location.y + dy,lab.player.location.x + dx)){
 		lab.player.location.y += dy;
 		lab.player.location.x += dx;
 		explore();
@@ -354,7 +462,27 @@ function move(dy,dx){
 		var c = lab.graph[lab.player.location.y][lab.player.location.x].contains;
 		if (c.indexOf("treasure") > -1){
 			c[c.indexOf("treasure")] = "treasureOpened";
-			lab.player.treasure += 100;
+			lab.player.treasure += 100 * lab.player.level;
+		}
+		if (c.indexOf("potion") > -1){
+			c.splice(c.indexOf("potion"),1);
+			lab.player.health = lab.player.healthMax;
+		}
+		if (c.indexOf("stairsUp") > -1){
+			lab.graphStore[lab.player.level - 1] = [
+				lab.graph,
+				lab.enemies
+			]
+			lab.player.level--
+			setup(lab.player.level);
+		}
+		if (c.indexOf("stairsDown") > -1){
+			lab.graphStore[lab.player.level - 1] = [
+				lab.graph,
+				lab.enemies
+			]
+			lab.player.level++;
+			setup(lab.player.level);
 		}
 	}
 }
@@ -363,6 +491,13 @@ function isWall(y,x){
 	if (lab.graph[y][x].nodeType.wall === false) return false;
 	return true;
 }
+function isEnemy(y,x){
+	for (var enemy in lab.enemies){
+		if (y == lab.enemies[enemy].location.y && x == lab.enemies[enemy].location.x) return lab.enemies[enemy];
+	}
+	return false;
+}
+
 function explore(){
 	for (var i=(lab.player.visibility * -1) + lab.player.location.y; i<=lab.player.visibility + lab.player.location.y; i++){
 		if (typeof lab.graph[i] == "undefined") lab.graph[i] = [];
@@ -407,8 +542,46 @@ function generateContents(y,x){
 		var contents = [];
 		
 		var r = random();
-		if (r < 0.005) contents.push("treasure");
+		if (r < 0.005){
+			contents.push("treasure");
+		} else if (r < 0.01){
+			contents.push("potion");
+		} else if (r < 0.02){
+			createEnemy(data.enemies.zombie,y,x);
+		}
+		
+		var stairs = random();
+		if (stairs < 0.0002 + (0.0002 / lab.player.level)){
+			contents = ["stairsDown"];
+		}
 		
 		return contents;
 	}
+}
+
+function createEnemy(model,y,x){
+	lab.enemies.push(new Enemy(model,y,x));
+}
+
+window.setInterval(function(){
+	if (lab.running){
+		for (var enemy in lab.enemies){
+			lab.enemies[enemy].move();
+		}
+	}
+},1000);
+
+function gameOver(){
+	lab.running = false;
+	noLoop();
+	
+	noStroke();
+	fill(0,155);
+	rect(0,windowHeight/2 - 70,windowWidth,120);
+	
+	stroke(255);
+	fill(255);
+	textSize(40);
+	textAlign(CENTER);
+	text("YOU DIED",windowWidth/2,windowHeight/2);
 }
