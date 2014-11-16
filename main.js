@@ -1,6 +1,7 @@
 /* variables */
 var lab = {
 	running:true,
+	autoSave:0,
 	seed:Math.random(),
 	graph:{
 		"-1":[],
@@ -21,7 +22,11 @@ var lab = {
 		healthMax:5
 	},
 	enemies:[
-	]
+	],
+	highScore:{
+		treasure:0,
+		level:0
+	}
 };
 
 var data = {
@@ -36,6 +41,7 @@ var data = {
 
 /* setup */
 function preload(){
+	loadGame();
 	initialiseData();
 	createCanvas(windowWidth,windowHeight);
 	background(0);
@@ -47,6 +53,18 @@ function setup(level){
 	imageMode(CENTER);
 	
 	if (typeof level == "undefined" || level > lab.graphStore.length){
+		if (typeof level == "undefined"){
+			//reset player details
+			lab.player.location = {
+				y:0,
+				x:0
+			};
+			lab.player.level = 1;
+			lab.player.treasure = 0;
+			lab.player.health = 5;
+			lab.player.healthMax = 5;
+		}
+		
 		lab.graph = [];
 		lab.graph[lab.player.location.y-1] = [];
 		lab.graph[lab.player.location.y] = [];
@@ -224,6 +242,7 @@ function initialiseData(){
 		}
 	}
 	
+	data.hud.coin = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_75.png");
 	data.hud.heart = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_85.png");
 	data.hud.heartEmpty = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_87.png");
 }
@@ -258,18 +277,21 @@ function Enemy(model,y,x){
 
 /* drawing */
 function draw(){
-	//clear
-	fill(0);
-	rect(0,0,windowWidth,windowHeight);
-	
-	drawGraph();
-	drawVisible();
-	drawPlayer();
-	drawEnemies();
-	drawInterface();
-	
-	if (lab.player.health <= 0){
-		gameOver();
+	if (lab.running){		
+		//clear
+		fill(0);
+		stroke(0);
+		rect(0,0,windowWidth,windowHeight);
+		
+		drawGraph();
+		drawVisible();
+		drawPlayer();
+		drawEnemies();
+		drawInterface();
+		
+		if (lab.player.health <= 0){
+			gameOver();
+		}
 	}
 }
 function drawGraph(){
@@ -336,7 +358,9 @@ function drawInterface(){
 	stroke(255);
 	fill(255);
 	textSize(18);
-	text("Treasure: " + lab.player.treasure,20,38);
+	textAlign(LEFT);
+	image(data.hud.coin,data.nodes.size,data.nodes.size/2 + 20);
+	text(lab.player.treasure,20 + data.nodes.size,38);
 	for (var i=1;i<=lab.player.healthMax;i++){
 		if (i <= lab.player.health){
 			image(data.hud.heart,windowWidth - 28 - (data.nodes.size * (i-1)),data.nodes.size/2 + 20);
@@ -399,14 +423,16 @@ function getWallImg(y,x,set){
 
 function keyPressed() {
     if (keyCode === UP_ARROW) {
-        move(-1,0);
+        if (lab.running) move(-1,0);
     } else if (keyCode === DOWN_ARROW) {    
-        move(1,0);
+        if (lab.running) move(1,0);
     } else if (keyCode === LEFT_ARROW) {
-        move(0,-1);
+        if (lab.running) move(0,-1);
     } else if (keyCode === RIGHT_ARROW) {
-        move(0,1);
-    }
+        if (lab.running) move(0,1);
+    } else if (keyCode === RETURN) {
+		handlePause();
+	}
 	return false;
 }
 function mouseClicked(){
@@ -414,34 +440,53 @@ function mouseClicked(){
 	var h = windowHeight;
 	var y = mouseY;
 	var x = mouseX;
-
-	if (y < h/2){
-		if (x < w/2){
-			if (x/w < y/h){
-				move(0,-1);
+	
+	if (y < h/2 + data.nodes.size && y > h/2 - data.nodes.size && x < w/2 + data.nodes.size && x > w/2 - data.nodes.size){
+		handlePause();
+	} else {
+		if (lab.running){
+			if (y < h/2){
+				if (x < w/2){
+					if (x/w < y/h){
+						move(0,-1);
+					} else {
+						move(-1,0);
+					}
+				} else {
+					if ((w-x)/w < y/h){
+						move(0,1);
+					} else {
+						move(-1,0);
+					}
+				}
 			} else {
-				move(-1,0);
-			}
-		} else {
-			if ((w-x)/w < y/h){
-				move(0,1);
-			} else {
-				move(-1,0);
+				if (x < w/2){
+					if (x/w < (h-y)/h){
+						move(0,-1);
+					} else {
+						move(1,0);
+					}
+				} else {
+					if ((w-x)/w < (h-y)/h){
+						move(0,1);
+					} else {
+						move(1,0);
+					}
+				}
 			}
 		}
+	}
+}
+function handlePause(){
+	if (lab.running){
+		pause(true);
 	} else {
-		if (x < w/2){
-			if (x/w < (h-y)/h){
-				move(0,-1);
-			} else {
-				move(1,0);
-			}
+		if (lab.player.health > 0){
+			unPause();
 		} else {
-			if ((w-x)/w < (h-y)/h){
-				move(0,1);
-			} else {
-				move(1,0);
-			}
+			lab.seed = Math.random();
+			setup();
+			unPause();
 		}
 	}
 }
@@ -569,19 +614,72 @@ window.setInterval(function(){
 			lab.enemies[enemy].move();
 		}
 	}
+	lab.autoSave++
+	if (lab.autoSave >= 60){
+		lab.autoSave = 0;
+		saveGame("auto");
+	}
 },1000);
 
-function gameOver(){
+function pause(message){
 	lab.running = false;
-	noLoop();
+	
+	if (message){
+		noStroke();
+		fill(0,155);
+		rect(0,windowHeight/2 - 70,windowWidth,120);
+		
+		stroke(255);
+		fill(255);
+		textSize(40);
+		textAlign(CENTER);
+		text("PAUSED",windowWidth/2,windowHeight/2);
+	}
+}
+function unPause(){
+	lab.running = true;
+}
+function gameOver(){
+	pause(false);
+	
+	var hs = false;
+	if (lab.player.treasure > lab.highScore.treasure){
+		lab.highScore.treasure = lab.player.treasure;
+		lab.highScore.level = lab.player.level;
+		hs = true;
+	} else if (lab.player.treasure == lab.highScore.treasure){
+		if (lab.player.level > lab.highScore.level){
+			lab.highScore.level = lab.player.level;
+			hs = true;
+		}
+	}
 	
 	noStroke();
 	fill(0,155);
-	rect(0,windowHeight/2 - 70,windowWidth,120);
+	rect(0,windowHeight/2 - 90,windowWidth,160);
 	
 	stroke(255);
 	fill(255);
 	textSize(40);
 	textAlign(CENTER);
-	text("YOU DIED",windowWidth/2,windowHeight/2);
+	text("YOU DIED",windowWidth/2,windowHeight/2 - 30);
+	textSize(20);
+	text("Level: " + lab.player.level + "  Treasure: " + lab.player.treasure,windowWidth/2,windowHeight/2 + 10);
+	
+	if (hs){
+		text("NEW HIGH SCORE!",windowWidth/2,windowHeight/2 + 40);
+	} else {
+		text("High Score  -  Level: " + lab.highScore.level + "  Treasure: " + lab.highScore.treasure,windowWidth/2,windowHeight/2 + 40);
+	}
+	
+	saveGame(false);
+}
+
+function saveGame(saveType){
+	var save = lab.highScore;
+	localStorage.setItem("Labyrinth",JSON.stringify(save));
+}
+function loadGame(){
+	var save = JSON.parse(localStorage.getItem("Labyrinth"));
+	if (typeof save !== "undefined") lab.highScore = save;
 }
