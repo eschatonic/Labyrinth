@@ -83,6 +83,22 @@ function setup(level){
 	} else {
 		lab.graph = lab.graphStore[level-1][0];
 		lab.enemies = lab.graphStore[level-1][1];
+		
+		if (typeof lab.graph[lab.player.location.y] == "undefined") lab.graph[lab.player.location.y] = [];
+		if (typeof lab.graph[lab.player.location.y-1] == "undefined") lab.graph[lab.player.location.y-1] = [];
+		if (typeof lab.graph[lab.player.location.y+1] == "undefined") lab.graph[lab.player.location.y+1] = [];		
+		
+		if (typeof lab.graph[lab.player.location.y][lab.player.location.x] == "undefined"){
+			for (var y=-1;y<=1;y++){
+				for (var x=-1;x<=1;x++){
+					generateNode(y + lab.player.location.y,x + lab.player.location.x,"open");
+				}
+			}
+			if (lab.player.level > 1){
+				lab.graph[lab.player.location.y][lab.player.location.x].contains = ["stairsUp"];
+			}
+			explore();
+		}
 	}
 }
 function initialiseData(){
