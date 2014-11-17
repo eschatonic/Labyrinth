@@ -298,6 +298,55 @@ function initialiseData(){
 			}
 		}
 	}
+	data.enemies.ghost = {
+		name:"Ghost",
+		img:loadImage("spritePack/Sliced/creatures_24x24/oryx_16bit_fantasy_creatures_295.png"),
+		health:2,
+		treasure:75,
+		move:function(){
+			if (this.location.y == lab.player.location.y && this.location.x - lab.player.location.x >= -1 && this.location.x - lab.player.location.x <= 1){
+				lab.player.health -= 2;
+			} else if (this.location.x == lab.player.location.x && this.location.y - lab.player.location.y >= -1 && this.location.y - lab.player.location.y <= 1){
+				lab.player.health -= 2;
+			} else {
+				var r = Math.random();
+				if (r < 0.5){
+					var dir = Math.random();
+					if (dir < 0.25){
+						this.location.y--;
+					} else if (dir < 0.5){
+						this.location.x++;
+					} else if (dir < 0.75){
+						this.location.y++;
+					} else {
+						this.location.x--;
+					}
+				} else {
+					var deltaY = lab.player.location.y - this.location.y;
+					var deltaX = lab.player.location.x - this.location.x;
+					var dest = {};
+					if (Math.abs(deltaY) > Math.abs(deltaX)){
+						dest.dy = deltaY / Math.abs(deltaY);
+						dest.dx = 0;
+					} else if (Math.abs(deltaY) == Math.abs(deltaX)) {
+						var r = Math.random();
+						if (r < 0.5){
+							dest.dy = deltaY / Math.abs(deltaY);
+							dest.dx = 0;
+						} else {
+							dest.dy = 0;
+							dest.dx = deltaX / Math.abs(deltaX);
+						}
+					} else {
+						dest.dy = 0;
+						dest.dx = deltaX / Math.abs(deltaX);
+					}
+					this.location.y += dest.dy;
+					this.location.x += dest.dx;
+				}
+			}
+		}
+	}
 	
 	data.hud.coin = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_75.png");
 	data.hud.heart = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_85.png");
@@ -664,10 +713,20 @@ function generateContents(y,x){
 function createEnemy(y,x){
 	var r = Math.random();
 	if (lab.player.level >= 2){
-		if (r < 0.5){
-			lab.enemies.push(new Enemy(data.enemies.zombie,y,x));
+		if (lab.player.level >= 3){
+			if (r < 1/3){
+				lab.enemies.push(new Enemy(data.enemies.zombie,y,x));
+			} else if (r < 2/3){
+				lab.enemies.push(new Enemy(data.enemies.skeleton,y,x));
+			} else {
+				lab.enemies.push(new Enemy(data.enemies.ghost,y,x));
+			}
 		} else {
-			lab.enemies.push(new Enemy(data.enemies.skeleton,y,x));
+			if (r < 0.5){
+				lab.enemies.push(new Enemy(data.enemies.zombie,y,x));
+			} else {
+				lab.enemies.push(new Enemy(data.enemies.skeleton,y,x));
+			}
 		}
 	} else {
 		lab.enemies.push(new Enemy(data.enemies.zombie,y,x));
