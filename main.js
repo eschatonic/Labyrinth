@@ -747,5 +747,5 @@ function saveGame(saveType){
 }
 function loadGame(){
 	var save = JSON.parse(localStorage.getItem("Labyrinth"));
-	if (typeof save !== "undefined") lab.highScore = save;
+	if (typeof save !== "undefined" && save) lab.highScore = save;
 }
