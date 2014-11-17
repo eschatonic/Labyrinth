@@ -241,6 +241,63 @@ function initialiseData(){
 			}
 		}
 	}
+	data.enemies.skeleton = {
+		name:"Skeleton",
+		img:loadImage("spritePack/Sliced/creatures_24x24/oryx_16bit_fantasy_creatures_291.png"),
+		health:4,
+		treasure:50,
+		move:function(){
+			if (this.location.y == lab.player.location.y && this.location.x - lab.player.location.x >= -1 && this.location.x - lab.player.location.x <= 1){
+				lab.player.health--;
+			} else if (this.location.x == lab.player.location.x && this.location.y - lab.player.location.y >= -1 && this.location.y - lab.player.location.y <= 1){
+				lab.player.health--;
+			} else {
+				var deltaY = lab.player.location.y - this.location.y;
+				var deltaX = lab.player.location.x - this.location.x;
+				var dest = {};
+				if (Math.abs(deltaY) > Math.abs(deltaX)){
+					dest.dy = deltaY / Math.abs(deltaY);
+					dest.dx = 0;
+				} else if (Math.abs(deltaY) == Math.abs(deltaX)) {
+					var r = Math.random();
+					if (r < 0.5){
+						dest.dy = deltaY / Math.abs(deltaY);
+						dest.dx = 0;
+					} else {
+						dest.dy = 0;
+						dest.dx = deltaX / Math.abs(deltaX);
+					}
+				} else {
+					dest.dy = 0;
+					dest.dx = deltaX / Math.abs(deltaX);
+				}
+				
+				if (!isWall(this.location.y + dest.dy, this.location.x + dest.dx)){
+					this.location.y += dest.dy;
+					this.location.x += dest.dx;
+				} else {
+					var dir = Math.random();
+					if (dir < 0.25){
+						if (!isWall(this.location.y-1,this.location.x)){
+							this.location.y--;
+						}
+					} else if (dir < 0.5){
+						if (!isWall(this.location.y,this.location.x+1)){
+							this.location.x++;
+						}
+					} else if (dir < 0.75){
+						if (!isWall(this.location.y+1,this.location.x)){
+							this.location.y++;
+						}
+					} else {
+						if (!isWall(this.location.y,this.location.x-1)){
+							this.location.x--;
+						}
+					}
+				}
+			}
+		}
+	}
 	
 	data.hud.coin = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_75.png");
 	data.hud.heart = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_85.png");
@@ -592,7 +649,7 @@ function generateContents(y,x){
 		} else if (r < 0.01){
 			contents.push("potion");
 		} else if (r < 0.02){
-			createEnemy(data.enemies.zombie,y,x);
+			createEnemy(y,x);
 		}
 		
 		var stairs = random();
@@ -604,8 +661,17 @@ function generateContents(y,x){
 	}
 }
 
-function createEnemy(model,y,x){
-	lab.enemies.push(new Enemy(model,y,x));
+function createEnemy(y,x){
+	var r = Math.random();
+	if (lab.player.level >= 2){
+		if (r < 0.5){
+			lab.enemies.push(new Enemy(data.enemies.zombie,y,x));
+		} else {
+			lab.enemies.push(new Enemy(data.enemies.skeleton,y,x));
+		}
+	} else {
+		lab.enemies.push(new Enemy(data.enemies.zombie,y,x));
+	}
 }
 
 window.setInterval(function(){
