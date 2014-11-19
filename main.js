@@ -461,7 +461,49 @@ function drawVisible(){
 	}
 }
 function isVisible(nodeY,nodeX){
-	return Math.floor(Math.sqrt(Math.pow(nodeY - lab.player.location.y,2) + Math.pow(nodeX - lab.player.location.x,2))) < lab.player.litVisibility;
+	if (Math.floor(Math.sqrt(Math.pow(nodeY - lab.player.location.y,2) + Math.pow(nodeX - lab.player.location.x,2))) < lab.player.litVisibility){
+		
+		var dy = nodeY - lab.player.location.y;
+		var dx = nodeX - lab.player.location.x;
+		if (dx == 0){
+			var i = 0;
+			var mag = dy / Math.abs(dy);
+			while (i < Math.abs(dy)){
+				if (isWall(lab.player.location.y + (i * mag),lab.player.location.x)){
+					return false;
+				}
+				i++;
+			}
+		} else if (dy == 0){
+			var i = 0;
+			var mag = dx / Math.abs(dx);
+			console.log(i,mag);
+			while (i < Math.abs(dx)){
+				if (isWall(lab.player.location.y,lab.player.location.x + (i * mag))){
+					return false;
+				}
+				i++;
+			}
+		} else {
+			var sc = Math.abs(dy) + Math.abs(dx);
+			var inY = 0;
+			var inX = 0;
+			var slY = dy/sc;
+			var slX	= dx/sc;
+			var ret = false;
+			while (Math.abs(inY) < Math.abs(dy) && Math.abs(inX) < Math.abs(dx)){
+				inY += slY;
+				inX += slX;
+				if (ret) return false;
+				if (isWall(Math.round(lab.player.location.y + inY),Math.round(lab.player.location.x + inX))){
+					ret = true;
+				}
+			}
+		}
+		return true;
+	} else {
+		return false;
+	}
 }
 function drawPlayer(){
 	image(lab.player.img,windowWidth/2,windowHeight/2);
