@@ -15,8 +15,9 @@ var lab = {
 			x:0
 		},
 		level:1,
-		visibility:9,
-		litVisibility:7,
+		visibility:10,
+		litVisibility:8,
+		maxLitVisibility:10,
 		treasure:0,
 		health:5,
 		healthMax:5
@@ -46,7 +47,7 @@ function preload(){
 	createCanvas(windowWidth,windowHeight);
 	background(0);
 }
-function setup(level){
+function setup(level,wentDown){
 	randomSeed(lab.seed * lab.player.level);
 	noiseSeed(lab.seed * lab.player.level);
 	textAlign(LEFT);
@@ -63,6 +64,8 @@ function setup(level){
 			lab.player.treasure = 0;
 			lab.player.health = 5;
 			lab.player.healthMax = 5;
+			lab.player.visibility = 10;
+			lab.player.litVisibility = 8;
 		}
 		
 		lab.graph = [];
@@ -84,16 +87,16 @@ function setup(level){
 		lab.graph = lab.graphStore[level-1][0];
 		lab.enemies = lab.graphStore[level-1][1];
 		
-		if (typeof lab.graph[lab.player.location.y] == "undefined") lab.graph[lab.player.location.y] = [];
-		if (typeof lab.graph[lab.player.location.y-1] == "undefined") lab.graph[lab.player.location.y-1] = [];
-		if (typeof lab.graph[lab.player.location.y+1] == "undefined") lab.graph[lab.player.location.y+1] = [];		
-		
-		if (typeof lab.graph[lab.player.location.y][lab.player.location.x] == "undefined"){
+		if (wentDown){
+			if (typeof lab.graph[lab.player.location.y] == "undefined") lab.graph[lab.player.location.y] = [];
+			if (typeof lab.graph[lab.player.location.y-1] == "undefined") lab.graph[lab.player.location.y-1] = [];
+			if (typeof lab.graph[lab.player.location.y+1] == "undefined") lab.graph[lab.player.location.y+1] = [];		
+
 			for (var y=-1;y<=1;y++){
-				for (var x=-1;x<=1;x++){
-					generateNode(y + lab.player.location.y,x + lab.player.location.x,"open");
+					for (var x=-1;x<=1;x++){
+						generateNode(y + lab.player.location.y,x + lab.player.location.x,"open");
+					}
 				}
-			}
 			if (lab.player.level > 1){
 				lab.graph[lab.player.location.y][lab.player.location.x].contains = ["stairsUp"];
 			}
@@ -213,6 +216,8 @@ function initialiseData(){
 	data.nodes.treasure = loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_261.png");
 	data.nodes.treasureOpened = loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_264.png");
 	data.nodes.potion = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_09.png");
+	data.nodes.lantern = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_148.png");
+	data.nodes.lanternEmpty = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_147.png");
 	
 	data.nodes.stairsDown = loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_67.png");
 	data.nodes.stairsUp = loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_66.png");
@@ -365,6 +370,61 @@ function initialiseData(){
 			}
 		}
 	}
+	/*
+	data.enemies.wraith = {
+		name:"Wraith",
+		img:loadImage("spritePack/Sliced/creatures_24x24/oryx_16bit_fantasy_creatures_294.png"),
+		health:2,
+		treasure:100,
+		move:function(){
+			if (this.location.y == lab.player.location.y && this.location.x - lab.player.location.x >= -1 && this.location.x - lab.player.location.x <= 1){
+				lab.player.health -= 1;
+				if (Math.random() < lab.player.litVisibility/lab.player.maxLitVisibility){
+					lab.player.visibility--;
+					lab.player.litVisibility--;
+				}
+			} else if (this.location.x == lab.player.location.x && this.location.y - lab.player.location.y >= -1 && this.location.y - lab.player.location.y <= 1){
+				lab.player.health -= 1;
+			} else {
+				var r = Math.random();
+				if (r < 0.5){
+					var dir = Math.random();
+					if (dir < 0.25){
+						this.location.y--;
+					} else if (dir < 0.5){
+						this.location.x++;
+					} else if (dir < 0.75){
+						this.location.y++;
+					} else {
+						this.location.x--;
+					}
+				} else {
+					var deltaY = lab.player.location.y - this.location.y;
+					var deltaX = lab.player.location.x - this.location.x;
+					var dest = {};
+					if (Math.abs(deltaY) > Math.abs(deltaX)){
+						dest.dy = deltaY / Math.abs(deltaY);
+						dest.dx = 0;
+					} else if (Math.abs(deltaY) == Math.abs(deltaX)) {
+						var r = Math.random();
+						if (r < 0.5){
+							dest.dy = deltaY / Math.abs(deltaY);
+							dest.dx = 0;
+						} else {
+							dest.dy = 0;
+							dest.dx = deltaX / Math.abs(deltaX);
+						}
+					} else {
+						dest.dy = 0;
+						dest.dx = deltaX / Math.abs(deltaX);
+					}
+					this.location.y += dest.dy;
+					this.location.x += dest.dx;
+				}
+			}
+		}
+	}
+	*/
 	
 	data.hud.coin = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_75.png");
 	data.hud.heart = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_85.png");
@@ -446,8 +506,9 @@ function drawNode(node){
 	}
 }
 function drawVisible(){
-	for (var i=(lab.player.litVisibility * -1) + lab.player.location.y; i<=lab.player.litVisibility + lab.player.location.y; i++){
-		for (var j=(lab.player.visibility * -1) + lab.player.location.x; j<=lab.player.visibility + lab.player.location.x; j++){
+	var vis = Math.min(lab.player.litVisibility - lab.player.level,lab.player.maxLitVisibility);
+	for (var i=(vis * -1) + lab.player.location.y; i<=vis + lab.player.location.y; i++){
+		for (var j=(vis * -1) + lab.player.location.x; j<=vis + lab.player.location.x; j++){
 			if (isVisible(i,j)){
 				var node = lab.graph[i][j];
 				var offsetY = node.location.y - lab.player.location.y,
@@ -463,6 +524,8 @@ function drawVisible(){
 					for (var thing in node.contains){
 						if (node.contains[thing] == "treasure") image(data.nodes.treasure,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
 						if (node.contains[thing] == "treasureOpened") image(data.nodes.treasureOpened,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
+						if (node.contains[thing] == "lantern") image(data.nodes.lantern,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
+						if (node.contains[thing] == "lanternEmpty") image(data.nodes.lanternEmpty,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
 						if (node.contains[thing] == "potion") image(data.nodes.potion,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
 						if (node.contains[thing] == "stairsDown") image(data.nodes.stairsDownVis,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
 						if (node.contains[thing] == "stairsUp") image(data.nodes.stairsUpVis,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
@@ -475,7 +538,7 @@ function drawVisible(){
 	}
 }
 function isVisible(nodeY,nodeX){
-	if (Math.floor(Math.sqrt(Math.pow(nodeY - lab.player.location.y,2) + Math.pow(nodeX - lab.player.location.x,2))) < lab.player.litVisibility){
+	if (Math.floor(Math.sqrt(Math.pow(nodeY - lab.player.location.y,2) + Math.pow(nodeX - lab.player.location.x,2))) < Math.min(lab.player.litVisibility - lab.player.level,lab.player.maxLitVisibility)){
 		
 		var dy = nodeY - lab.player.location.y;
 		var dx = nodeX - lab.player.location.x;
@@ -548,6 +611,13 @@ function drawInterface(){
 			image(data.hud.heart,windowWidth - 28 - (data.nodes.size * (i-1)),data.nodes.size/2 + 20);
 		} else {
 			image(data.hud.heartEmpty,windowWidth - 28 - (data.nodes.size * (i-1)),data.nodes.size/2 + 20);
+		}
+	}
+	for (var i=1;i<=Math.ceil(lab.player.maxLitVisibility/2);i++){
+		if (i <= Math.min(lab.player.litVisibility-lab.player.level,lab.player.maxLitVisibility)/2){
+			image(data.nodes.lantern,windowWidth - 28 - (data.nodes.size * (i-1)),data.nodes.size * 1.5 + 20);
+		} else {
+			image(data.nodes.lanternEmpty,windowWidth - 28 - (data.nodes.size * (i-1)),data.nodes.size * 1.5 + 20);
 		}
 	}
 }
@@ -691,6 +761,11 @@ function move(dy,dx){
 			c[c.indexOf("treasure")] = "treasureOpened";
 			lab.player.treasure += 100 * lab.player.level;
 		}
+		if (c.indexOf("lantern") > -1){
+			c[c.indexOf("lantern")] = "lanternEmpty";
+			lab.player.visibility++;
+			lab.player.litVisibility++;
+		}
 		if (c.indexOf("potion") > -1){
 			c.splice(c.indexOf("potion"),1);
 			lab.player.health = lab.player.healthMax;
@@ -701,7 +776,7 @@ function move(dy,dx){
 				lab.enemies
 			]
 			lab.player.level--
-			setup(lab.player.level);
+			setup(lab.player.level,false);
 		}
 		if (c.indexOf("stairsDown") > -1){
 			lab.graphStore[lab.player.level - 1] = [
@@ -709,7 +784,7 @@ function move(dy,dx){
 				lab.enemies
 			]
 			lab.player.level++;
-			setup(lab.player.level);
+			setup(lab.player.level,true);
 		}
 	}
 }
@@ -726,10 +801,11 @@ function isEnemy(y,x){
 }
 
 function explore(){
-	for (var i=(lab.player.visibility * -1) + lab.player.location.y; i<=lab.player.visibility + lab.player.location.y; i++){
+	var vis = Math.min(lab.player.visibility - lab.player.level,lab.player.maxLitVisibility+2);
+	for (var i=(vis * -1) + lab.player.location.y; i<=vis + lab.player.location.y; i++){
 		if (typeof lab.graph[i] == "undefined") lab.graph[i] = [];
-		for (var j=(lab.player.visibility * -1) + lab.player.location.x; j<=lab.player.visibility + lab.player.location.x; j++){
-			if (Math.floor(Math.sqrt(Math.pow(i - lab.player.location.y,2) + Math.pow(j - lab.player.location.x,2))) < lab.player.visibility){
+		for (var j=(vis * -1) + lab.player.location.x; j<=vis + lab.player.location.x; j++){
+			if (Math.floor(Math.sqrt(Math.pow(i - lab.player.location.y,2) + Math.pow(j - lab.player.location.x,2))) < vis){
 				if (typeof lab.graph[i][j] == "undefined"){
 					generateNode(i,j,false);
 				}
@@ -775,6 +851,8 @@ function generateContents(y,x){
 			contents.push("potion");
 		} else if (r < 0.02){
 			createEnemy(y,x);
+		} else if (r < 0.0205){
+			contents.push("lantern");
 		}
 		
 		var stairs = random();
