@@ -374,6 +374,7 @@ function Node(location,nodeType,contains){
 	this.location = location;
 	this.nodeType = nodeType;
 	this.contains = contains;
+	this.explored = false;
 }
 function NodeType(traversable,floor,wall){
 	this.traversable = traversable;
@@ -424,13 +425,15 @@ function drawGraph(){
 	}
 }
 function drawNode(node){
-	var offsetY = node.location.y - lab.player.location.y,
-		offsetX = node.location.x - lab.player.location.x;
-		
-	if (node.nodeType.floor){
-		image(node.nodeType.floor.img,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
-	} else if (node.nodeType.wall !== false){
-		image(getWallImg(node.location.y,node.location.x,0),windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
+	if (node.explored){
+		var offsetY = node.location.y - lab.player.location.y,
+			offsetX = node.location.x - lab.player.location.x;
+			
+		if (node.nodeType.floor){
+			image(node.nodeType.floor.img,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
+		} else if (node.nodeType.wall !== false){
+			image(getWallImg(node.location.y,node.location.x,0),windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
+		}
 	}
 }
 function drawVisible(){
@@ -456,6 +459,8 @@ function drawVisible(){
 						if (node.contains[thing] == "stairsUp") image(data.nodes.stairsUp,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
 					}
 				}
+				
+				if (node.explored == false) node.explored = true;
 			}
 		}
 	}
