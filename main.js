@@ -477,7 +477,6 @@ function isVisible(nodeY,nodeX){
 		} else if (dy == 0){
 			var i = 0;
 			var mag = dx / Math.abs(dx);
-			console.log(i,mag);
 			while (i < Math.abs(dx)){
 				if (isWall(lab.player.location.y,lab.player.location.x + (i * mag))){
 					return false;
@@ -490,12 +489,17 @@ function isVisible(nodeY,nodeX){
 			var inX = 0;
 			var slY = dy/sc;
 			var slX	= dx/sc;
+			var sigY = slY / Math.abs(slY);
+			var sigX = slX / Math.abs(slX);
 			var ret = false;
 			while (Math.abs(inY) < Math.abs(dy) && Math.abs(inX) < Math.abs(dx)){
 				inY += slY;
 				inX += slX;
 				if (ret) return false;
-				if (isWall(Math.round(lab.player.location.y + inY),Math.round(lab.player.location.x + inX))){
+				if (isWall(
+					lab.player.location.y + sigY * Math.floor(Math.abs(inY)),
+					lab.player.location.x + sigX * Math.floor(Math.abs(inX))
+				)){
 					ret = true;
 				}
 			}
