@@ -214,8 +214,10 @@ function initialiseData(){
 	data.nodes.treasureOpened = loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_264.png");
 	data.nodes.potion = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_09.png");
 	
-	data.nodes.stairsDown = loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_181.png");
-	data.nodes.stairsUp = loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_180.png");
+	data.nodes.stairsDown = loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_67.png");
+	data.nodes.stairsUp = loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_66.png");
+	data.nodes.stairsDownVis = loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_181.png");
+	data.nodes.stairsUpVis = loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_180.png");
 	
 	data.nodes.nodeTypes.open = new NodeType(true,data.nodes.floorTypes.earth,false);
 	data.nodes.nodeTypes.stone0 = new NodeType(true,data.nodes.floorTypes.stone0,false);
@@ -434,6 +436,13 @@ function drawNode(node){
 		} else if (node.nodeType.wall !== false){
 			image(getWallImg(node.location.y,node.location.x,0),windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
 		}
+		
+		if (node.contains && node.contains.length > 0){
+			for (var thing in node.contains){
+				if (node.contains[thing] == "stairsDown") image(data.nodes.stairsDown,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
+				if (node.contains[thing] == "stairsUp") image(data.nodes.stairsUp,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
+			}
+		}
 	}
 }
 function drawVisible(){
@@ -455,8 +464,8 @@ function drawVisible(){
 						if (node.contains[thing] == "treasure") image(data.nodes.treasure,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
 						if (node.contains[thing] == "treasureOpened") image(data.nodes.treasureOpened,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
 						if (node.contains[thing] == "potion") image(data.nodes.potion,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
-						if (node.contains[thing] == "stairsDown") image(data.nodes.stairsDown,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
-						if (node.contains[thing] == "stairsUp") image(data.nodes.stairsUp,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
+						if (node.contains[thing] == "stairsDown") image(data.nodes.stairsDownVis,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
+						if (node.contains[thing] == "stairsUp") image(data.nodes.stairsUpVis,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
 					}
 				}
 				
