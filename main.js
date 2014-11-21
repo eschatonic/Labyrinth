@@ -370,7 +370,6 @@ function initialiseData(){
 			}
 		}
 	}
-	/*
 	data.enemies.wraith = {
 		name:"Wraith",
 		img:loadImage("spritePack/Sliced/creatures_24x24/oryx_16bit_fantasy_creatures_294.png"),
@@ -379,7 +378,7 @@ function initialiseData(){
 		move:function(){
 			if (this.location.y == lab.player.location.y && this.location.x - lab.player.location.x >= -1 && this.location.x - lab.player.location.x <= 1){
 				lab.player.health -= 1;
-				if (Math.random() < lab.player.litVisibility/lab.player.maxLitVisibility){
+				if (Math.random() < lab.player.litVisibility/lab.player.maxLitVisibility && lab.player.litVisibility >=0){
 					lab.player.visibility--;
 					lab.player.litVisibility--;
 				}
@@ -424,7 +423,6 @@ function initialiseData(){
 			}
 		}
 	}
-	*/
 	
 	data.hud.coin = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_75.png");
 	data.hud.heart = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_85.png");
@@ -506,7 +504,7 @@ function drawNode(node){
 	}
 }
 function drawVisible(){
-	var vis = Math.min(lab.player.litVisibility - lab.player.level,lab.player.maxLitVisibility);
+	var vis = Math.min(Math.max(lab.player.litVisibility - lab.player.level,0),lab.player.maxLitVisibility);
 	for (var i=(vis * -1) + lab.player.location.y; i<=vis + lab.player.location.y; i++){
 		for (var j=(vis * -1) + lab.player.location.x; j<=vis + lab.player.location.x; j++){
 			if (isVisible(i,j)){
@@ -538,7 +536,7 @@ function drawVisible(){
 	}
 }
 function isVisible(nodeY,nodeX){
-	if (Math.floor(Math.sqrt(Math.pow(nodeY - lab.player.location.y,2) + Math.pow(nodeX - lab.player.location.x,2))) < Math.min(lab.player.litVisibility - lab.player.level,lab.player.maxLitVisibility)){
+	if (Math.floor(Math.sqrt(Math.pow(nodeY - lab.player.location.y,2) + Math.pow(nodeX - lab.player.location.x,2))) < Math.min(Math.max(lab.player.litVisibility - lab.player.level,0),lab.player.maxLitVisibility)){
 		
 		var dy = nodeY - lab.player.location.y;
 		var dx = nodeX - lab.player.location.x;
@@ -801,7 +799,7 @@ function isEnemy(y,x){
 }
 
 function explore(){
-	var vis = Math.min(lab.player.visibility - lab.player.level,lab.player.maxLitVisibility+2);
+	var vis = Math.min(Math.max(lab.player.visibility - lab.player.level,0),lab.player.maxLitVisibility+2);
 	for (var i=(vis * -1) + lab.player.location.y; i<=vis + lab.player.location.y; i++){
 		if (typeof lab.graph[i] == "undefined") lab.graph[i] = [];
 		for (var j=(vis * -1) + lab.player.location.x; j<=vis + lab.player.location.x; j++){
@@ -868,12 +866,24 @@ function createEnemy(y,x){
 	var r = Math.random();
 	if (lab.player.level >= 2){
 		if (lab.player.level >= 3){
-			if (r < 1/3){
-				lab.enemies.push(new Enemy(data.enemies.zombie,y,x));
-			} else if (r < 2/3){
-				lab.enemies.push(new Enemy(data.enemies.skeleton,y,x));
+			if (lab.player.level >= 4){
+				if (r < 1/4){
+					lab.enemies.push(new Enemy(data.enemies.zombie,y,x));
+				} else if (r < 2/4){
+					lab.enemies.push(new Enemy(data.enemies.skeleton,y,x));
+				} else if (r < 3/4){
+					lab.enemies.push(new Enemy(data.enemies.ghost,y,x));
+				} else {
+					lab.enemies.push(new Enemy(data.enemies.wraith,y,x));
+				}
 			} else {
-				lab.enemies.push(new Enemy(data.enemies.ghost,y,x));
+				if (r < 1/3){
+					lab.enemies.push(new Enemy(data.enemies.zombie,y,x));
+				} else if (r < 2/3){
+					lab.enemies.push(new Enemy(data.enemies.skeleton,y,x));
+				} else {
+					lab.enemies.push(new Enemy(data.enemies.ghost,y,x));
+				}
 			}
 		} else {
 			if (r < 0.5){
