@@ -820,7 +820,16 @@ function getNodeType(y,x,force){
 	if (force == "open") return getOpenSpace();
 	if (force == "wall") return getWall();
 	
-	if (noise(y, x) < 0.3) return getWall();
+	if (debugCaves){
+		var isCaveWall = getCaves(y,x);
+		if (isCaveWall){
+			return getWall();
+		} else {
+			return getOpenSpace();
+		}
+	} else {
+		if (noise(y, x) < 0.3) return getWall();
+	}
 	return getOpenSpace();
 }
 function getOpenSpace(){
@@ -971,4 +980,16 @@ function saveGame(saveType){
 function loadGame(){
 	var save = JSON.parse(localStorage.getItem("Labyrinth"));
 	if (typeof save !== "undefined" && save) lab.highScore = save;
+}
+
+
+/****************** EXPERIMENTAL ********************/
+
+var debugCaves = false;
+
+function getCaves(i,j){
+	var output = false;
+	if (noise(i/9,j/9) > 0.43 && noise(i/9,j/9) < 0.5) output = true;
+	if (Math.random() < 0.2) output = false;
+	return output;
 }
