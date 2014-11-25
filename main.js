@@ -140,24 +140,6 @@ function initialiseData(){
 	);
 	
 	data.nodes.wallImages = [[
-		/*[ //bright grey
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_125.png"), //single
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_126.png"), //right
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_127.png"), //left-right
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_128.png"), //left
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_129.png"), //down
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_130.png"), //up-down
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_131.png"), //up
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_132.png"), //right-down
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_133.png"), //left-down
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_134.png"), //up-right
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_135.png"), //up-left
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_136.png"), //up-down-left-right
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_137.png"), //left-right-down
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_138.png"), //up-left-down
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_139.png"), //up-right-down
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_140.png")  //up-left-right
-		],*/
 		[ //dull yellow
 			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_695.png"), //single
 			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_696.png"), //right
@@ -194,24 +176,6 @@ function initialiseData(){
 			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_139.png"), //up-right-down
 			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_140.png")  //up-left-right
 		]
-		/*[ //Bright yellow
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_182.png"), //single
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_183.png"), //right
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_184.png"), //left-right
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_185.png"), //left
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_186.png"), //down
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_187.png"), //up-down
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_188.png"), //up
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_189.png"), //right-down
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_190.png"), //left-down
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_191.png"), //up-right
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_192.png"), //up-left
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_193.png"), //up-down-left-right
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_194.png"), //left-right-down
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_195.png"), //up-left-down
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_196.png"), //up-right-down
-			loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_197.png")  //up-left-right
-		]*/
 	]]
 
 	data.nodes.treasure = loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_261.png");
@@ -219,6 +183,12 @@ function initialiseData(){
 	data.nodes.potion = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_09.png");
 	data.nodes.lantern = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_148.png");
 	data.nodes.lanternEmpty = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_147.png");
+	
+	data.nodes.rubble0 = loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_90.png");
+	data.nodes.rubble1 = loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_91.png");
+	data.nodes.rubble2 = loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_92.png");
+	data.nodes.rubble3 = loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_93.png");
+	data.nodes.rubble4 = loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_94.png");
 	
 	data.nodes.stairsDown = loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_67.png");
 	data.nodes.stairsUp = loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_66.png");
@@ -521,13 +491,7 @@ function drawVisible(){
 				
 				if (node.contains && node.contains.length > 0){
 					for (var thing in node.contains){
-						if (node.contains[thing] == "treasure") image(data.nodes.treasure,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
-						if (node.contains[thing] == "treasureOpened") image(data.nodes.treasureOpened,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
-						if (node.contains[thing] == "lantern") image(data.nodes.lantern,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
-						if (node.contains[thing] == "lanternEmpty") image(data.nodes.lanternEmpty,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
-						if (node.contains[thing] == "potion") image(data.nodes.potion,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
-						if (node.contains[thing] == "stairsDown") image(data.nodes.stairsDownVis,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
-						if (node.contains[thing] == "stairsUp") image(data.nodes.stairsUpVis,windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
+						if (node.contains[thing]) image(data.nodes[node.contains[thing]],windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
 					}
 				}
 				
@@ -849,13 +813,11 @@ function caveGen(y,x){
 	} else {
 		if ((n < 0.2) || (n >= 0.8)){ //peaks of heightmap -> centres of spaces
 			output = "centre";
-			//contains = "potion"; //testing
 		} else if (n < 0.515 && n > 0.425){ //next to a wall
 			output = "edge";
-			//contains = "potion"; //testing
+			contains = getRubble();
 		} else {
 			output = "none";
-			//contains = "potion"; //testing
 		}
 	}
 	if (contains){
@@ -872,6 +834,11 @@ function getOpenSpace(spaceType){
 		"stone0","stone0","stone0","stone0",
 		"stone1","stone2","stone3","stone4"
 	];
+	var index = Math.floor(random() * arr.length);
+	return arr[index];
+}
+function getRubble(){
+	var arr = ["rubble0","rubble1","rubble2","rubble3","rubble4"];
 	var index = Math.floor(random() * arr.length);
 	return arr[index];
 }
