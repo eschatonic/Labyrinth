@@ -814,38 +814,58 @@ function explore(){
 }
 
 function generateNode(y,x,force){
-	lab.graph[y][x] = new Node({y:y,x:x},data.nodes.nodeTypes[getNodeType(y,x,force)],[]);
-	lab.graph[y][x].contains = generateContents(y,x);
+	var nodeType = getNodeType(y,x,force);
+	lab.graph[y][x] = new Node({y:y,x:x},data.nodes.nodeTypes[nodeType[0]],[nodeType[1]]);
+	lab.graph[y][x].contains = generateContents(lab.graph[y][x].contains,y,x);
 }
 function getNodeType(y,x,force){
-	if (force == "open") return getOpenSpace();
-	if (force == "wall") return getWall();
+	if (force == "open") return [getOpenSpace()];
+	if (force == "wall") return [getWall()];
 	
 	if (lab.caveGen){
 		//cave generation
-		var isCaveWall = caveGen(y,x);
-		if (isCaveWall){
-			return getWall()
+		var square = caveGen(y,x);
+		if (square[0] === "wall"){
+			return [getWall()]
 		} else {
-			return getOpenSpace();
+			return [getOpenSpace(square[0]),square[1]];
 		};
 	} else {
 		//noise generation
-		if (noise(y, x) < 0.3) return getWall();
+		if (noise(y, x) < 0.3) return [getWall()];
 	}
-	return getOpenSpace();
+	return [getOpenSpace()];
 }
 
 function caveGen(y,x){
-	var output = false;
-	var scaleFactor = 7;
+	var output;
+	var contains;
+	var scaleFactor = 6;
 	var n = noise(y/scaleFactor,x/scaleFactor);
-	if (n > 0.43 && n < 0.5) output = true;
-	if (random() < 0.2) output = false;
-	return output;
+	if (n > 0.44 && n < 0.5){ //midbands in heightmap -> walls
+		if (random() > 0.1){ //add breaks in walls for traversability
+			output = "wall";
+		}
+	} else {
+		if ((n < 0.2) || (n >= 0.8)){ //peaks of heightmap -> centres of spaces
+			output = "centre";
+			//contains = "potion"; //testing
+		} else if (n < 0.515 && n > 0.425){ //next to a wall
+			output = "edge";
+			//contains = "potion"; //testing
+		} else {
+			output = "none";
+			//contains = "potion"; //testing
+		}
+	}
+	if (contains){
+		return [output,contains];
+	} else {
+		return [output];
+	}
 }
 
-function getOpenSpace(){
+function getOpenSpace(spaceType){
 	var arr = [
 		"stone0","stone0","stone0","stone0",
 		"stone0","stone0","stone0","stone0",
@@ -858,12 +878,10 @@ function getOpenSpace(){
 function getWall(){
 	return "wall";
 }
-function generateContents(y,x){
+function generateContents(contents,y,x){
 	if (isWall(y,x)){
-		return [];
+		return contents;
 	} else {
-		var contents = [];
-		
 		var r = random();
 		if (r < 0.005){
 			contents.push("treasure");
