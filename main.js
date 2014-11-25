@@ -3,6 +3,7 @@ var lab = {
 	running:true,
 	autoSave:0,
 	seed:Math.random(),
+	caveGen:true,
 	graph:{
 		"-1":[],
 		"0":[],
@@ -820,18 +821,30 @@ function getNodeType(y,x,force){
 	if (force == "open") return getOpenSpace();
 	if (force == "wall") return getWall();
 	
-	if (debugCaves){
-		var isCaveWall = getCaves(y,x);
+	if (lab.caveGen){
+		//cave generation
+		var isCaveWall = caveGen(y,x);
 		if (isCaveWall){
-			return getWall();
+			return getWall()
 		} else {
 			return getOpenSpace();
-		}
+		};
 	} else {
+		//noise generation
 		if (noise(y, x) < 0.3) return getWall();
 	}
 	return getOpenSpace();
 }
+
+function caveGen(y,x){
+	var output = false;
+	var scaleFactor = 7;
+	var n = noise(y/scaleFactor,x/scaleFactor);
+	if (n > 0.43 && n < 0.5) output = true;
+	if (random() < 0.2) output = false;
+	return output;
+}
+
 function getOpenSpace(){
 	var arr = [
 		"stone0","stone0","stone0","stone0",
@@ -980,16 +993,4 @@ function saveGame(saveType){
 function loadGame(){
 	var save = JSON.parse(localStorage.getItem("Labyrinth"));
 	if (typeof save !== "undefined" && save) lab.highScore = save;
-}
-
-
-/****************** EXPERIMENTAL ********************/
-
-var debugCaves = false;
-
-function getCaves(i,j){
-	var output = false;
-	if (noise(i/9,j/9) > 0.43 && noise(i/9,j/9) < 0.5) output = true;
-	if (Math.random() < 0.2) output = false;
-	return output;
 }
