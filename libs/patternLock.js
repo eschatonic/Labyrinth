@@ -99,7 +99,7 @@
             }
 
             if (idx) {
-                if (patternAry.indexOf(pattId) == -1) {
+                //if (patternAry.indexOf(pattId) == -1) {
                     var elm = $(li[idx - 1]);
                     elm.addClass('hovered');
                     //push pattern on array
@@ -130,7 +130,7 @@
                     //add on dom
                     iObj.holder.append(line);
                     if (!lineOnMove) iObj.line.hide();
-                }
+                //}
             }
 
         },

@@ -46,7 +46,7 @@ var data = {
 function preload(){
 	loadGame();
 	initialiseData();
-	createCanvas(windowWidth,windowHeight);
+	lab.canvas = createCanvas(windowWidth,windowHeight);
 	background(0);
 	createPattern();
 }
