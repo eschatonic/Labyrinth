@@ -38,7 +38,8 @@ var data = {
 		floorTypes:{}
 	},
 	enemies:{},
-	hud:{}
+	hud:{},
+	pattern:{}
 }
 
 /* setup */
@@ -47,6 +48,7 @@ function preload(){
 	initialiseData();
 	createCanvas(windowWidth,windowHeight);
 	background(0);
+	createPattern();
 }
 function setup(level,wentDown){
 	randomSeed(lab.seed * lab.player.level);
@@ -400,6 +402,14 @@ function initialiseData(){
 	data.hud.coin = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_75.png");
 	data.hud.heart = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_85.png");
 	data.hud.heartEmpty = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_87.png");
+}
+
+function createPattern(){
+	data.pattern = createElement("div");
+	data.pattern.attribute("id","patternContainer");
+	var lock = new PatternLock("#patternContainer");
+	data.pattern.position(20,20);
+	data.pattern.hide();
 }
 
 /* constructors */
