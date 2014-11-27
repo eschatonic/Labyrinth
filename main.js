@@ -108,6 +108,8 @@ function setup(level,wentDown){
 function initialiseData(){
 	lab.player.img = loadImage("spritePack/Sliced/creatures_24x24/oryx_16bit_fantasy_creatures_01.png")
 	
+	//parchment = loadImage("parchment_alpha.png")
+	
 	data.nodes.floorTypes.earth = new FloorType(
 		"Earth",
 		loadImage("spritePack/Sliced/world_24x24/oryx_16bit_fantasy_world_65.png"),
@@ -921,6 +923,9 @@ function pause(message){
 	lab.running = false;
 	
 	if (message){
+		//var scalingFactor = Math.min(windowWidth * 0.8 / parchment.width, windowHeight * 0.8 / parchment.height);
+		//image(parchment,windowWidth/2,windowHeight/2,parchment.width * scalingFactor,parchment.height * scalingFactor);
+		
 		noStroke();
 		fill(0,155);
 		rect(0,windowHeight/2 - 70,windowWidth,120);
