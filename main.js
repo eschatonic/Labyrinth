@@ -815,7 +815,7 @@ function caveGen(y,x){
 	} else {
 		if ((n < 0.2) || (n >= 0.8)){ //peaks of heightmap -> centres of spaces
 			output = "centre";
-		} else if (n < 0.515 && n > 0.425){ //next to a wall
+		} else if (n < 0.51 && n > 0.43){ //next to a wall
 			output = "edge";
 			contains = getRubble();
 		} else {
