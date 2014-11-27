@@ -637,13 +637,13 @@ function getWallImg(y,x,set){
 }
 
 function keyPressed() {
-    if (keyCode === UP_ARROW) {
+    if (keyCode === UP_ARROW || keyCode === 87) {
         if (lab.running) move(-1,0);
-    } else if (keyCode === DOWN_ARROW) {    
+    } else if (keyCode === DOWN_ARROW || keyCode === 83) {    
         if (lab.running) move(1,0);
-    } else if (keyCode === LEFT_ARROW) {
+    } else if (keyCode === LEFT_ARROW || keyCode === 65) {
         if (lab.running) move(0,-1);
-    } else if (keyCode === RIGHT_ARROW) {
+    } else if (keyCode === RIGHT_ARROW || keyCode === 68) {
         if (lab.running) move(0,1);
     } else if (keyCode === RETURN) {
 		handlePause();
