@@ -16,14 +16,17 @@ var lab = {
 		maxLitVisibility:10,
 		treasure:0,
 		health:5,
-		healthMax:5
+		healthMax:5,
+		mana:10,
+		manaMax:10
 	},
 	enemies:[
 	],
 	highScore:{
 		treasure:0,
 		level:0
-	}
+	},
+	castList:[]
 };
 var data = {
 	nodes:{
