@@ -407,8 +407,18 @@ function initialiseData(){
 function createPattern(){
 	data.pattern = createElement("div");
 	data.pattern.attribute("id","patternContainer");
-	var lock = new PatternLock("#patternContainer");
-	data.pattern.position(20,20);
+	var minSize = Math.min(windowHeight,windowWidth);
+	var pattMargin = (minSize - 150)/8;
+	var lock = new PatternLock("#patternContainer",{
+		margin:pattMargin,
+		onDraw:function(){
+			console.log(lock.getPattern());
+			lock.reset();
+		},
+	});
+	var offsetY = (windowHeight > windowWidth) ? (windowHeight - minSize)/2 : 0;
+	var offsetX = (windowWidth > windowHeight) ? (windowWidth - minSize)/2 : 0;
+	data.pattern.position(offsetX,offsetY);
 	data.pattern.hide();
 }
 
@@ -945,10 +955,13 @@ function pause(message){
 		textSize(40);
 		textAlign(CENTER);
 		text("PAUSED",windowWidth/2,windowHeight/2);
+		
+		data.pattern.show();
 	}
 }
 function unPause(){
 	lab.running = true;
+	data.pattern.hide();
 }
 function gameOver(){
 	pause(false);
