@@ -6,7 +6,8 @@ function completeSigil(sigil){
 			addToCastList(s);
 			return true;
 		};
-	}
+	};
+	return false;
 }
 
 function addToCastList(spell){
