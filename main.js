@@ -416,9 +416,7 @@ function createPattern(){
 			lock.reset();
 		},
 	});
-	var offsetY = (windowHeight > windowWidth) ? (windowHeight - minSize)/2 : 0;
-	var offsetX = (windowWidth > windowHeight) ? (windowWidth - minSize)/2 : 0;
-	data.pattern.position(offsetX,offsetY);
+	data.pattern.position((windowWidth - minSize)/2,(windowHeight - minSize)/2);
 	data.pattern.hide();
 }
 
