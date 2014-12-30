@@ -20,6 +20,7 @@ var lab = {
 	},
 	enemies:[
 	],
+	spells:{},
 	highScore:{
 		treasure:0,
 		level:0
@@ -63,6 +64,11 @@ function Enemy(model,y,x){
 		y:y,
 		x:x
 	}
+}
+function Spell(name,sigil,cost){
+	this.name = name;
+	this.sigil = sigil;
+	this.cost = cost;
 }
 
 function initialiseData(){
@@ -360,4 +366,21 @@ function initialiseData(){
 	data.hud.coin = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_75.png");
 	data.hud.heart = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_85.png");
 	data.hud.heartEmpty = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_87.png");
+	
+	data.spells.lightning = new Spell("Lightning",[2,5,8],3);
+	data.spells.fire = new Spell("Fire",[8,5,2],3);
+	data.spells.water = new Spell("Water",[4,8,6],3);
+	data.spells.earth = new Spell("Earth",[4,2,6],3);
+	data.spells.phase = new Spell("Phase",[4,7,8,9,6],1);
+	data.spells.mask = new Spell("Mask",[1,2,3],1);
+	data.spells.invisible = new Spell("Invisible",[1,5,9,6,3,5,7,4,1],1);
+	data.spells.illusion = new Spell("Illusion",[1,2,3,6,5,4,7,8,9],1);
+	data.spells.slash = new Spell("Slash",[7,5,3],1);
+	data.spells.reverse = new Spell("Reverse",[7,5,3,5,7],1);
+	data.spells.scribe = new Spell("Scribe",[7,8,9,8,7],1);
+	data.spells.summon = new Spell("Summon",[1,2,3,6,9,8,7,4,5],5);
+	data.spells.shield = new Spell("Shield",[1,2,3,6,9,8,7,4,1],1);
+	data.spells.crystal = new Spell("Crystal",[4,2,6,8,4],5);
+	data.spells.thaumesce = new Spell("Thaumesce",[5,2,5,3,5,6,5,9,5,8,5,7,5,4,5,1,5],1);
+	data.spells.speed = new Spell("Speed",[2,6,5,4,8],1);
 }
