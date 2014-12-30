@@ -63,7 +63,7 @@ function createPattern(){
 	var lock = new PatternLock("#patternContainer",{
 		margin:pattMargin,
 		onDraw:function(){
-			console.log(lock.getPattern());
+			completeSigil(lock.getPattern());
 			lock.reset();
 		},
 	});
