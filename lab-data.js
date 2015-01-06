@@ -10,10 +10,12 @@ var lab = {
 			y:0,
 			x:0
 		},
+		moved:false,
 		level:1,
 		visibility:10,
 		litVisibility:8,
 		maxLitVisibility:10,
+		moveFrequency:3,
 		treasure:0,
 		health:5,
 		healthMax:5,

@@ -16,9 +16,10 @@ function setup(level,wentDown){
 
 /* main loop */
 function draw(){
-	if (lab.running){		
+	if (lab.running){
+		checkInputs();
+	
 		clearScreen();
-		
 		drawGraph();
 		drawVisible();
 		drawPlayer();

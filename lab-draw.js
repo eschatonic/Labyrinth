@@ -125,7 +125,8 @@ function drawInterface(){
 	textSize(18);
 	textAlign(LEFT);
 	image(data.hud.coin,data.nodes.size,data.nodes.size/2 + 20);
-	text(lab.player.treasure,20 + data.nodes.size,38);
+	text(lab.player.treasure.toString(),20 + data.nodes.size,38);
+	console.log(lab.player.treasure);
 	for (var i=1;i<=lab.player.healthMax;i++){
 		if (i <= lab.player.health){
 			image(data.hud.heart,windowWidth - 28 - (data.nodes.size * (i-1)),data.nodes.size/2 + 20);

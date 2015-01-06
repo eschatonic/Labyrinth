@@ -1,17 +1,19 @@
-function keyPressed() {
-    if (keyCode === UP_ARROW || keyCode === 87) {
-        if (lab.running) move(-1,0);
-    } else if (keyCode === DOWN_ARROW || keyCode === 83) {    
-        if (lab.running) move(1,0);
-    } else if (keyCode === LEFT_ARROW || keyCode === 65) {
-        if (lab.running) move(0,-1);
-    } else if (keyCode === RIGHT_ARROW || keyCode === 68) {
-        if (lab.running) move(0,1);
-    } else if (keyCode === RETURN) {
-		handlePause();
-	}
+function checkInputs(){
+	if (keyIsDown(UP_ARROW)) {
+        move(-1,0);
+    } else if (keyIsDown(DOWN_ARROW)) {    
+        move(1,0);
+    } else if (keyIsDown(LEFT_ARROW)) {
+        move(0,-1);
+    } else if (keyIsDown(RIGHT_ARROW)) {
+        move(0,1);
+    }
 	return false;
 }
+function keyPressed(){
+	if (keyCode === RETURN) handlePause();
+}
+
 function mouseClicked(){
 	var w = windowWidth;
 	var h = windowHeight;

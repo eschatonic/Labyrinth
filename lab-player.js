@@ -1,45 +1,48 @@
 function move(dy,dx){
-	var e = isEnemy(lab.player.location.y + dy,lab.player.location.x + dx);
-	if (e){
-		e.health--;
-		if (e.health <= 0){
-			lab.player.treasure += e.treasure * lab.player.level;
-			lab.enemies.splice(lab.enemies.indexOf(e),1);
-		}
-	} else if (!isWall(lab.player.location.y + dy,lab.player.location.x + dx)){
-		lab.player.location.y += dy;
-		lab.player.location.x += dx;
-		explore();
-		
-		var c = lab.graph[lab.player.location.y][lab.player.location.x].contains;
-		if (c.indexOf("treasure") > -1){
-			c[c.indexOf("treasure")] = "treasureOpened";
-			lab.player.treasure += 100 * lab.player.level;
-		}
-		if (c.indexOf("lantern") > -1){
-			c[c.indexOf("lantern")] = "lanternEmpty";
-			lab.player.visibility++;
-			lab.player.litVisibility++;
-		}
-		if (c.indexOf("potion") > -1){
-			c.splice(c.indexOf("potion"),1);
-			lab.player.health = lab.player.healthMax;
-		}
-		if (c.indexOf("stairsUp") > -1){
-			lab.graphStore[lab.player.level - 1] = [
-				lab.graph,
-				lab.enemies
-			]
-			lab.player.level--
-			setup(lab.player.level,false);
-		}
-		if (c.indexOf("stairsDown") > -1){
-			lab.graphStore[lab.player.level - 1] = [
-				lab.graph,
-				lab.enemies
-			]
-			lab.player.level++;
-			setup(lab.player.level,true);
+	if (!lab.player.moved){
+		var e = isEnemy(lab.player.location.y + dy,lab.player.location.x + dx);
+		if (e){
+			e.health--;
+			if (e.health <= 0){
+				lab.player.treasure += e.treasure * lab.player.level;
+				lab.enemies.splice(lab.enemies.indexOf(e),1);
+			}
+		} else if (!isWall(lab.player.location.y + dy,lab.player.location.x + dx)){
+			lab.player.location.y += dy;
+			lab.player.location.x += dx;
+			explore();
+			resetMoved();
+			
+			var c = lab.graph[lab.player.location.y][lab.player.location.x].contains;
+			if (c.indexOf("treasure") > -1){
+				c[c.indexOf("treasure")] = "treasureOpened";
+				lab.player.treasure += 100 * lab.player.level;
+			}
+			if (c.indexOf("lantern") > -1){
+				c[c.indexOf("lantern")] = "lanternEmpty";
+				lab.player.visibility++;
+				lab.player.litVisibility++;
+			}
+			if (c.indexOf("potion") > -1){
+				c.splice(c.indexOf("potion"),1);
+				lab.player.health = lab.player.healthMax;
+			}
+			if (c.indexOf("stairsUp") > -1){
+				lab.graphStore[lab.player.level - 1] = [
+					lab.graph,
+					lab.enemies
+				]
+				lab.player.level--
+				setup(lab.player.level,false);
+			}
+			if (c.indexOf("stairsDown") > -1){
+				lab.graphStore[lab.player.level - 1] = [
+					lab.graph,
+					lab.enemies
+				]
+				lab.player.level++;
+				setup(lab.player.level,true);
+			}
 		}
 	}
 }
@@ -56,4 +59,11 @@ function explore(){
 			}
 		}
 	}
+}
+
+function resetMoved(){
+	lab.player.moved = true;
+	setTimeout(function(){
+		lab.player.moved = false;
+	}, 1000 / lab.player.moveFrequency);
 }
