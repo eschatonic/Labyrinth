@@ -24,6 +24,8 @@ var lab = {
 	},
 	enemies:[
 	],
+	particles:[
+	],
 	highScore:{
 		treasure:0,
 		level:0
@@ -37,6 +39,7 @@ var data = {
 		floorTypes:{}
 	},
 	enemies:{},
+	particles:{},
 	spells:{},
 	hud:{},
 	pattern:{}
@@ -69,6 +72,10 @@ function Enemy(model,y,x){
 		y:y,
 		x:x
 	}
+}
+function Animation(images,limits){
+	this.images = images;
+	this.limits = limits;
 }
 function Spell(name,sigil,cost){
 	this.name = name;
@@ -183,9 +190,9 @@ function initialiseData(){
 		treasure:25,
 		move:function(){
 			if (this.location.y == lab.player.location.y && this.location.x - lab.player.location.x >= -1 && this.location.x - lab.player.location.x <= 1){
-				lab.player.health--;
+				dealDamage(lab.player,1,"claw");
 			} else if (this.location.x == lab.player.location.x && this.location.y - lab.player.location.y >= -1 && this.location.y - lab.player.location.y <= 1){
-				lab.player.health--;
+				dealDamage(lab.player,1,"claw");
 			} else {
 				var dir = Math.random();
 				if (dir < 0.25){
@@ -215,9 +222,9 @@ function initialiseData(){
 		treasure:50,
 		move:function(){
 			if (this.location.y == lab.player.location.y && this.location.x - lab.player.location.x >= -1 && this.location.x - lab.player.location.x <= 1){
-				lab.player.health--;
+				dealDamage(lab.player,1,"claw");
 			} else if (this.location.x == lab.player.location.x && this.location.y - lab.player.location.y >= -1 && this.location.y - lab.player.location.y <= 1){
-				lab.player.health--;
+				dealDamage(lab.player,1,"claw");
 			} else {
 				var deltaY = lab.player.location.y - this.location.y;
 				var deltaX = lab.player.location.x - this.location.x;
@@ -272,9 +279,9 @@ function initialiseData(){
 		treasure:75,
 		move:function(){
 			if (this.location.y == lab.player.location.y && this.location.x - lab.player.location.x >= -1 && this.location.x - lab.player.location.x <= 1){
-				lab.player.health -= 2;
+				dealDamage(lab.player,2,"claw");
 			} else if (this.location.x == lab.player.location.x && this.location.y - lab.player.location.y >= -1 && this.location.y - lab.player.location.y <= 1){
-				lab.player.health -= 2;
+				dealDamage(lab.player,2,"claw");
 			} else {
 				var r = Math.random();
 				if (r < 0.5){
@@ -321,13 +328,13 @@ function initialiseData(){
 		treasure:100,
 		move:function(){
 			if (this.location.y == lab.player.location.y && this.location.x - lab.player.location.x >= -1 && this.location.x - lab.player.location.x <= 1){
-				lab.player.health -= 1;
+				dealDamage(lab.player,1,"claw");
 				if (Math.random() < lab.player.litVisibility/lab.player.maxLitVisibility && lab.player.litVisibility >=0){
 					lab.player.visibility--;
 					lab.player.litVisibility--;
 				}
 			} else if (this.location.x == lab.player.location.x && this.location.y - lab.player.location.y >= -1 && this.location.y - lab.player.location.y <= 1){
-				lab.player.health -= 1;
+				dealDamage(lab.player,1,"claw");
 			} else {
 				var r = Math.random();
 				if (r < 0.5){
@@ -367,6 +374,15 @@ function initialiseData(){
 			}
 		}
 	}
+	
+	data.particles.slash = new Animation([
+		loadImage("spritePack/Sliced/fx_24x24/oryx_16bit_fantasy_fx2_01.png"),
+		loadImage("spritePack/Sliced/fx_24x24/oryx_16bit_fantasy_fx2_02.png"),
+	],[5,9])
+	data.particles.claw = new Animation([
+		loadImage("spritePack/Sliced/fx_24x24/oryx_16bit_fantasy_fx2_21.png"),
+		loadImage("spritePack/Sliced/fx_24x24/oryx_16bit_fantasy_fx2_22.png"),
+	],[5,9])
 	
 	data.hud.coin = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_75.png");
 	data.hud.heart = loadImage("spritePack/Sliced/items_16x16/oryx_16bit_fantasy_items_85.png");

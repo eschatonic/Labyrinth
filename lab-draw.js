@@ -119,6 +119,27 @@ function drawEnemies(){
 		}
 	}
 }
+
+function drawParticles(){
+	for (var particle in lab.particles){
+		var p = lab.particles[particle];
+		var animation = data.particles[p.animType];
+		if (isVisible(p.location.y,p.location.x)){
+			var offsetY = p.location.y - lab.player.location.y,
+				offsetX = p.location.x - lab.player.location.x;
+			image(animation.images[animationFrame(animation,p)],windowWidth/2 + offsetX*data.nodes.size,windowHeight/2 + offsetY*data.nodes.size);
+		}
+		p.timer++;
+		if (p.timer > animation.limits[animation.limits.length-1]) lab.particles.splice(lab.particles.indexOf(p),1);
+	}
+}
+function animationFrame(animation,particle){
+	for (var i=0,j=animation.limits.length;i<j;i++){
+		if (particle.timer < animation.limits[i]) return i;
+	}
+	return 0;
+}
+
 function drawInterface(){
 	stroke(255);
 	fill(255);
@@ -126,7 +147,6 @@ function drawInterface(){
 	textAlign(LEFT);
 	image(data.hud.coin,data.nodes.size,data.nodes.size/2 + 20);
 	text(lab.player.treasure.toString(),20 + data.nodes.size,38);
-	console.log(lab.player.treasure);
 	for (var i=1;i<=lab.player.healthMax;i++){
 		if (i <= lab.player.health){
 			image(data.hud.heart,windowWidth - 28 - (data.nodes.size * (i-1)),data.nodes.size/2 + 20);

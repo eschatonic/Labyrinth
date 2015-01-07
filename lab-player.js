@@ -2,7 +2,7 @@ function move(dy,dx){
 	if (!lab.player.moved){
 		var e = isEnemy(lab.player.location.y + dy,lab.player.location.x + dx);
 		if (e){
-			e.health--;
+			dealDamage(e,1,"slash");
 			if (e.health <= 0){
 				lab.player.treasure += e.treasure * lab.player.level;
 				lab.enemies.splice(lab.enemies.indexOf(e),1);
@@ -66,4 +66,16 @@ function resetMoved(){
 	setTimeout(function(){
 		lab.player.moved = false;
 	}, 1000 / lab.player.moveFrequency);
+}
+
+function dealDamage(target,amount,animType){
+	target.health -= amount;
+	lab.particles.push({
+		animType:animType,
+		timer:0,
+		location:{
+			y:target.location.y,
+			x:target.location.x
+		}
+	})
 }

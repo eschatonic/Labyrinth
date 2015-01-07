@@ -24,6 +24,7 @@ function draw(){
 		drawVisible();
 		drawPlayer();
 		drawEnemies();
+		drawParticles();
 		drawInterface();
 		
 		if (lab.player.health <= 0){
