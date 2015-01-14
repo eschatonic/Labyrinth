@@ -84,7 +84,11 @@ function Spell(name,sigil,cost){
 }
 
 function initialiseData(){
-	lab.player.img = loadImage("spritePack/Sliced/creatures_24x24/oryx_16bit_fantasy_creatures_01.png")
+	if (Math.random() > 0.5){
+		lab.player.img = loadImage("spritePack/Sliced/creatures_24x24/oryx_16bit_fantasy_creatures_01.png")
+	} else {
+		lab.player.img = loadImage("spritePack/Sliced/creatures_24x24/oryx_16bit_fantasy_creatures_10.png")
+	}
 	
 	//parchment = loadImage("parchment_alpha.png")
 	
